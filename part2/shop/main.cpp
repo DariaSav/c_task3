@@ -122,20 +122,24 @@ int main() {
 	std::shared_ptr<IShop> green_land = std::make_shared<IShop>("Green Land");
 
 
-	std::thread product_thread([&]() {
+	std::thread flower_thread([&]() {
         Rose rose(15);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
         rose.StartSales();
         rose.Attach(flower_and_co);
         rose.Attach(golden_garden);
+	rose.Attach(green_land);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         Tulip tulip(13);
         tulip.StartSales();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
         tulip.Attach(green_land);
+	rose.Detach(golden_garden);
         tulip.Attach(golden_garden);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
-        rose.Detach(golden_garden);
+     //   rose.Detach(golden_garden);
         tulip.Detach(green_land);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
@@ -145,27 +149,32 @@ int main() {
         rose.ChangePrice(16);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-        Camomile camomile(45);
+        Camomile camomile(10);
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
         camomile.Attach(flower_and_co);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     });
 
     std::thread shop_thread([&]() {
-        for(int i = 0; i < 5; i++) {
-            flower_and_co->printInfo();
-            golden_garden->printInfo();
-            green_land->printInfo();
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        }
-        flower_and_co.reset();
-        golden_garden->printInfo();
-        green_land->printInfo();
 
+        flower_and_co->printInfo();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        golden_garden->printInfo();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        green_land->printInfo();
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        flower_and_co.reset();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        golden_garden->printInfo();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        green_land->printInfo();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
         golden_garden.reset();
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
         green_land->printInfo();
     });
 
-    product_thread.join();
+    flower_thread.join();
     shop_thread.join();
 }
 
