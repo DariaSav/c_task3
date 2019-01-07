@@ -4,157 +4,57 @@
 #include <atomic>
 #include <mutex>
 
-#include "Shop.h"
-
-
-
-void IShop::printInfo(){
-
-	std::lock_guard<std::mutex> lockp(printed);
-
-	if (prods.size()){
-
-	std::cout << name << " sells:" << std::endl;
-
-	for (std::pair<std::string, float> element : prods){
-		std::cout << element.first << " by price " << element.second << " $" << std::endl;
-	}
-}
-	else std::cout << name << " sells no flowers" << std::endl;
-
- 
-
-
-//	for (const auto& prod : prods){
-		//auto prod = prod_w.lock();
-//		if (prod->sell) std::cout << " " << prod->GetPrice() << " " << prod->GetName() << name << std::endl;
- 
-//};
-
-}; 
-
-
-void IShop::ChangePrice(const std::string s, float price){
-
-	std::lock_guard<std::mutex> lockp(printed);
-	std::lock_guard<std::mutex> lockc(changed);
-
-
-	prods[s] = price;
-	std::cout << "Price of " << s << " changed in shop " << name << " to " << price << "$" << std::endl;
- 
-  
-} 
-
-void IShop::Sell(const std::string s, float price){
-  
-
-	std::lock_guard<std::mutex> lockp(printed);
-	std::lock_guard<std::mutex> lockc(changed);
-
-	prods.insert({s, price});
-	//std::cout << s << " startechanged in shop " << name << " to " << price << "$" << std::endl;
-	std::cout << "Shop " << name << " started selling " << s << " by price " << price << "$" << std::endl;
-
-
-}
-
-
-void IShop::NoSell(const std::string s){
-
-	std::lock_guard<std::mutex> lockp(printed);
-	std::lock_guard<std::mutex> lockc(changed);
-
-	prods.erase(s);
-	std::cout << "Shop " << name << " stopped selling " << s << std::endl;
-
-
-};
-
-class Rose: public IProduct{
-
-public:
- 
-Rose(float p): IProduct(p) {name = "Rose";};
-Rose(Rose* r): IProduct(r) {name = "Rose";};
-
-//std::string name = "Car";
-
-};
-
-class Tulip: public IProduct{
-
-public:
-
-Tulip(float p): IProduct(p) {name = "Tulip";};
-Tulip(Tulip* t): IProduct(t) {name = "Tulip";};
-
-//std::string name = "Elephant";
-
-};
-
-class Camomile: public IProduct{  
-
-public: 
-
-Camomile(float p): IProduct(p) {name = "Camomile";};
-Camomile(Camomile* c): IProduct(c) {name = "Camomile";};
-
-//std::string name = "Elephant";
-
-};
-
-
+#include "header.h"
 
 
 int main() { 
-
-	//IShop shop1("Flowers&co");
-	//std::shared_ptr<IShop> flower_and_co = std::make_shared<IShop>(shop1);
-	//IShop shop2("Golden Garden");
-	//std::shared_ptr<IShop> golden_garden = std::make_shared<IShop>(shop2);
-	//IShop shop3("Green Land");
-	//std::shared_ptr<IShop> green_land = std::make_shared<IShop>(shop3);
-
 
 	std::shared_ptr<IShop> flower_and_co = std::make_shared<IShop>("Flowers&co");
 	std::shared_ptr<IShop> golden_garden = std::make_shared<IShop>("Golden Garden");
 	std::shared_ptr<IShop> green_land = std::make_shared<IShop>("Green Land");
 
 
-	std::thread flower_thread([&]() {
-        Rose rose(15);
-	std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        rose.StartSales();
-        rose.Attach(flower_and_co);
-        rose.Attach(golden_garden);
-	rose.Attach(green_land);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	std::thread flower_thread([&]() { 
+        Rose rose(1);
+	Tulip tulip(2);
+	Camomile camomile(3);
+	
+	std::this_thread::sleep_for(std::chrono::milliseconds(2));
 
-        Tulip tulip(13);
+	rose.Attach(flower_and_co);
+        rose.Attach(golden_garden);
+        rose.StartSales();
+	rose.Attach(green_land);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        
         tulip.StartSales();
+
 	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
         tulip.Attach(green_land);
+	rose.ChangePrice(16);
 	rose.Detach(golden_garden);
         tulip.Attach(golden_garden);
-        std::this_thread::sleep_for(std::chrono::milliseconds(2));
+	camomile.Attach(golden_garden);
+	camomile.StartSales();
+	tulip.StopSales();
 
-     //   rose.Detach(golden_garden);
-	Camomile camomile(10);
-	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(3));
+
         camomile.Attach(flower_and_co);
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
         tulip.Detach(green_land);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	tulip.ChangePrice(7);
+	rose.Detach(green_land);
 
-        tulip.ChangePrice(12.99);
-        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-        rose.ChangePrice(16);
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
 	camomile.ChangePrice(42);
+	camomile.Detach(flower_and_co);
+
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
     });

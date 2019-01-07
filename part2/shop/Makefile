@@ -4,7 +4,7 @@ CFLAGS        = -Wall -std=c++0x -I./src
 LDFLAGS       = -Wall
 
 
-SRC := main.cpp Shop.cpp
+SRC := main.cpp Shop.cpp Product.cpp
 
 
 OBJ := $(SRC:.cpp=.o)
